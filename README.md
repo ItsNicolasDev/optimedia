@@ -27,3 +27,7 @@ curl -X POST "http://127.0.0.1:8000/compress" -H "accept: application/json" -H "
 ```
 ![Request](/images/request.png)
 
+Example resources for testing:
+ - Image: https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/600px-PNG_transparency_demonstration_1.png
+ - Video: https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4
+
