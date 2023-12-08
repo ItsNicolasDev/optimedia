@@ -9,7 +9,7 @@ This was done at less than 10hours, as part of the Nuit de l'Info 2023 by Nicola
 2. Install dependencies: `pip install -r requirements.txt`
 3. Run the API: `uvicorn main:app --reload`
 
-The API will be accessible at `http://127.0.0.1:8000`. You can explore the Swagger documentation at `http://127.0.0.1:8000/docs` and test the API with the interactive interface.
+The API will be accessible at `http://127.0.0.1:8000`.
 
 ## Web Interface
 
