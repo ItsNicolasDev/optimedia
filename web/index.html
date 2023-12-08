@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OptiMedia</title>
+</head>
+<style>
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        background: #141414;
+        color: white;
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 40px;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    label {
+        margin-top: 10px;
+        font-size: 16px;
+    }
+
+    input {
+        margin-top: 5px;
+        margin-bottom: 10px;
+        padding: 5px 5px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: 2px solid white;
+        background-color: #474646;
+        max-width: 400px;
+        width: 100%;
+        color: white;
+    }
+
+    button {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        background-color: #db0000;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+
+    button:disabled {
+        background-color: #474646;
+        color: #a0a0a0;
+    }
+
+    button:active {
+        transform: scale(0.95);
+    }
+
+    span {
+        color: #db0000;
+    }
+
+    #result {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+</style>
+<body>
+<h1>Opti<span>Media</span></h1>
+<form id="compressionForm">
+    <label for="url">URL:</label>
+    <input type="text" id="url" name="url" required>
+    <br>
+    <label for="maxSize">Max Size (Ko):</label>
+    <input type="number" id="maxSize" name="maxSize" required>
+    <br>
+    <button type="button" onclick="compress()">Compress</button>
+    <button type="button" onclick="download()" id="downloadBtn" disabled>Download Compressed File</button>
+    <input type="hidden" id="compressedFileUrl" name="compressedFileUrl">
+</form>
+
+<div id="loading" style="display: none;text-align: center;">
+    Loading...
+</div>
+
+<div id="result" style="margin-top: 20px;"></div>
+
+<script>
+    async function download() {
+        const compressedFileUrl = document.getElementById('compressedFileUrl').value;
+
+        if (!compressedFileUrl) {
+            alert('No compressed file available for download.');
+            return;
+        }
+
+        const downloadLink = document.createElement('a');
+        downloadLink.href = compressedFileUrl;
+        downloadLink.download = 'compressed_file';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+
+    function formatKey(key) {
+        return key.replace(/_/g, ' ').replace(/(?:^\w|[A-Z]|\b\w)/g, (match, index) => {
+            return index === 0 ? match.toUpperCase() : match.toLowerCase();
+        });
+    }
+
+    async function compress() {
+        if (!document.getElementById('url').value || !document.getElementById('maxSize').value) {
+            alert('Please fill in all fields');
+            return;
+        }
+        const url = document.getElementById('url').value;
+        const maxSize = document.getElementById('maxSize').value;
+
+        document.getElementById('result').innerHTML = '';
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('downloadBtn').setAttribute('disabled', 'disabled');
+
+
+        const response = await fetch('/compress', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                url: url,
+                max_size: parseInt(maxSize),
+            }),
+        });
+        console.log(JSON.stringify({
+            url: url,
+            max_size: parseInt(maxSize),
+        }))
+
+        const result = await response.json();
+        displayResult(result);
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    function displayResult(result) {
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = '';
+
+        for (const [key, value] of Object.entries(result)) {
+            const formattedKey = formatKey(key);
+            const p = document.createElement('p');
+            p.innerHTML = `<strong>${formattedKey}:</strong> ${value}`;
+            resultDiv.appendChild(p);
+
+            if (key === 'compressed_file_url') {
+                document.getElementById('compressedFileUrl').value = value;
+            }
+        }
+        document.getElementById('downloadBtn').removeAttribute('disabled');
+    }
+</script>
+</body>
+</html>
